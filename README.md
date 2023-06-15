@@ -1,8 +1,6 @@
-# Учебный проект в рамках курса от Archakov Blog
-
 ## Интернет-магазин кроссовок - React Sneakers
 
-# Stack:
+## Stack:
 
 ReactJS + хуки
 React Router

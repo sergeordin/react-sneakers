@@ -1,59 +1,43 @@
 import styles from './Drawer.module.scss';
 
-const Drawer = () => {
+const Drawer = ({ onCloseCart, deleteItem, items = [] }) => {
     return (
-        <div style={{ display: 'none' }} className={styles.overlay}>
+        <div className={styles.overlay}>
             <div className={styles.drawer}>
                 <h2 className=" d-flex mb-30">
                     Корзина{' '}
                     <img
+                        onClick={onCloseCart}
                         className={styles.close}
                         src="/img/close.svg"
                         alt="Remove"
                     />
                 </h2>
-                <div className={styles.items}>
-                    <div
-                        className={`${styles.cartItem} cartItem d-flex align-center`}
-                    >
-                        <div
-                            style={{
-                                backgroundImage: 'url(/img/sneakers/1.jpeg)',
-                            }}
-                            className={styles.cartItemImg}
-                        ></div>
-                        <div className="mr-20 flex">
-                            <p className="mb-5">
-                                Мужские Кроссовки Nike Blazer Mid Suede
-                            </p>
-                            <b>12 999 руб.</b>
-                        </div>
-                        <img
-                            className={styles.close}
-                            src="/img/close.svg"
-                            alt="Remove"
-                        />
-                    </div>
 
-                    <div className={`${styles.cartItem} d-flex align-center`}>
+                <div className={styles.items}>
+                    {items.map((i) => (
                         <div
-                            style={{
-                                backgroundImage: 'url(/img/sneakers/1.jpeg)',
-                            }}
-                            className={styles.cartItemImg}
-                        ></div>
-                        <div className="mr-20 flex">
-                            <p className="mb-5">
-                                Мужские Кроссовки Nike Blazer Mid Suede
-                            </p>
-                            <b>12 999 руб.</b>
+                            key={i.id}
+                            className={`${styles.cartItem} cartItem d-flex align-center`}
+                        >
+                            <div
+                                style={{
+                                    backgroundImage: `url(${i.img})`,
+                                }}
+                                className={styles.cartItemImg}
+                            ></div>
+                            <div className="mr-20 flex">
+                                <p className="mb-5">{i.name}</p>
+                                <b>{i.price} руб.</b>
+                            </div>
+                            <img
+                                className={styles.close}
+                                src="/img/close.svg"
+                                alt="Remove"
+                                onClick={() => deleteItem(i)}
+                            />
                         </div>
-                        <img
-                            className={styles.close}
-                            src="/img/close.svg"
-                            alt="Remove"
-                        />
-                    </div>
+                    ))}
                 </div>
                 <div className={styles.cartTotalBlock}>
                     <ul>
