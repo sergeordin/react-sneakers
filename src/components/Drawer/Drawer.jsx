@@ -1,13 +1,47 @@
+import Info from './Info';
 import styles from './Drawer.module.scss';
+import AppContext from '../../context';
+import { useContext, useState } from 'react';
+import axios from 'axios';
+import { CART_URL, ORDERS_URL } from '../../App';
 
-const Drawer = ({ onCloseCart, onDelete, items = [] }) => {
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+const Drawer = ({ onDelete, items = [] }) => {
+    const { cartItems, setCartOpened, setCartItems } = useContext(AppContext);
+
+    const [isOrderCompleted, setIsOrderCompleted] = useState();
+    const [orderId, setOrderId] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const onClickOrder = async () => {
+        try {
+            setIsLoading(true);
+            const { data } = await axios.post(ORDERS_URL, {
+                items: cartItems,
+            });
+            setOrderId(data.id);
+            setIsOrderCompleted(true);
+            setCartItems([]);
+
+            for (let i = 0; i < cartItems.length; i++) {
+                const item = cartItems[i];
+                await axios.delete(`${CART_URL}/${item.id}`);
+                await delay(1000);
+            }
+        } catch (error) {
+            alert('Ошибка оформления заказа ' + error.message);
+        }
+        setIsLoading(false);
+    };
+
     return (
         <div className={styles.overlay}>
             <div className={styles.drawer}>
                 <h2 className=" d-flex mb-30">
                     Корзина{' '}
                     <img
-                        onClick={onCloseCart}
+                        onClick={() => setCartOpened(false)}
                         className={styles.close}
                         src="/img/close.svg"
                         alt="Remove"
@@ -15,7 +49,7 @@ const Drawer = ({ onCloseCart, onDelete, items = [] }) => {
                 </h2>
 
                 {items.length > 0 ? (
-                    <>
+                    <div className="d-flex flex-column flex">
                         <div className={styles.items}>
                             {items.map((i) => (
                                 <div
@@ -54,36 +88,34 @@ const Drawer = ({ onCloseCart, onDelete, items = [] }) => {
                                     <b>1074 руб.</b>
                                 </li>
                             </ul>
-                            <button className={styles.greenButton}>
+                            <button
+                                className={styles.greenButton}
+                                onClick={onClickOrder}
+                                disabled={isLoading}
+                            >
                                 Оформить заказ
                                 <img src="/img/arrow-right.svg" alt="Arrow" />
                             </button>
                         </div>
-                    </>
-                ) : (
-                    <div
-                        className={`${styles.cartEmpty} d-flex align-center justify-center flex-column flex`}
-                    >
-                        <img
-                            className="mb-20"
-                            width="120px"
-                            height="120px"
-                            src="/img/cart-empty.jpeg"
-                            alt="Empty"
-                        />
-                        <h2>Корзина пустая</h2>
-                        <p className="opacity-6">
-                            Добавьте хотя бы одну пару кроссовок, чтобы сделать
-                            заказ.
-                        </p>
-                        <button
-                            onClick={onCloseCart}
-                            className={styles.greenButton}
-                        >
-                            <img src="/img/arrow-right.svg" alt="Arrow" />
-                            Вернуться назад
-                        </button>
                     </div>
+                ) : (
+                    <Info
+                        title={
+                            isOrderCompleted
+                                ? 'Заказ оформлен!'
+                                : 'Корзина пустая'
+                        }
+                        image={
+                            isOrderCompleted
+                                ? '/img/ordered.jpeg'
+                                : '/img/cart-empty.jpeg'
+                        }
+                        desciption={
+                            isOrderCompleted
+                                ? `Ваш заказ #${orderId} скоро будет передан курьерской доставке`
+                                : 'Добавьте хотя бы одну пару кроссовок, чтобы сделать заказ.'
+                        }
+                    />
                 )}
             </div>
         </div>

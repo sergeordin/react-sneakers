@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import styles from './Card.module.scss';
+import AppContext from '../../context';
 
 const Card = ({
     id,
@@ -10,12 +11,11 @@ const Card = ({
     onPlus,
     favorited = false,
 }) => {
-    const [isAdded, setIsAdded] = useState(false);
+    const { isItemAdded } = useContext(AppContext);
     const [isFavorite, setIsFavorite] = useState(favorited);
 
     const onClickPlus = () => {
         onPlus({ id, name, img, price });
-        setIsAdded(!isAdded);
     };
 
     const onClickFavorite = () => {
@@ -37,7 +37,7 @@ const Card = ({
                 />
             </div>
 
-            <img width={133} height={112} src={img} alt={name} />
+            <img width="100%" height={135} src={img} alt={name} />
             <h5>{name}</h5>
             <div className="d-flex justify-between align-center">
                 <div className="d-flex flex-column">
@@ -46,7 +46,11 @@ const Card = ({
                 </div>
                 <img
                     className={styles.plus}
-                    src={isAdded ? '/img/btn-checked.svg' : '/img/btn-plus.svg'}
+                    src={
+                        isItemAdded(id)
+                            ? '/img/btn-checked.svg'
+                            : '/img/btn-plus.svg'
+                    }
                     alt="Plus"
                     onClick={onClickPlus}
                 />

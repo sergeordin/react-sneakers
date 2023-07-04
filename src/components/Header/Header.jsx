@@ -1,6 +1,9 @@
+import { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import AppContext from '../../context';
 
-const Header = ({ onClickCart }) => {
+const Header = () => {
+    const { setCartOpened } = useContext(AppContext);
     return (
         <header className="d-flex justify-between align-center p-40">
             <Link to="/">
@@ -18,7 +21,7 @@ const Header = ({ onClickCart }) => {
                 </div>
             </Link>
             <ul className="d-flex">
-                <li className="mr-30 cu-p" onClick={onClickCart}>
+                <li className="mr-30 cu-p" onClick={() => setCartOpened(true)}>
                     <img
                         width={18}
                         height={18}
