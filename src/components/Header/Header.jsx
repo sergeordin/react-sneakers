@@ -1,9 +1,12 @@
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import AppContext from '../../context';
+import { useCart } from '../../hooks/useCart';
 
 const Header = () => {
     const { setCartOpened } = useContext(AppContext);
+    const { totalPrice } = useCart();
+
     return (
         <header className="d-flex justify-between align-center p-40">
             <Link to="/">
@@ -28,7 +31,7 @@ const Header = () => {
                         src="/img/cart.svg"
                         alt="Сart"
                     />
-                    <span>0 p.</span>
+                    <span>{totalPrice} p.</span>
                 </li>
                 <li>
                     <Link to="favorites">
@@ -42,13 +45,15 @@ const Header = () => {
                     </Link>
                 </li>
                 <li>
-                    <img
-                        className="cu-p"
-                        width={18}
-                        height={18}
-                        src="/img/profile.svg"
-                        alt="Profile"
-                    />
+                    <Link to="orders">
+                        <img
+                            className="cu-p"
+                            width={18}
+                            height={18}
+                            src="/img/profile.svg"
+                            alt="Profile"
+                        />
+                    </Link>
                 </li>
             </ul>
         </header>

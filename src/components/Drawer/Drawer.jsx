@@ -1,15 +1,16 @@
-import Info from './Info';
 import styles from './Drawer.module.scss';
+import { CART_URL, ORDERS_URL } from '../../urls';
 import AppContext from '../../context';
-import { useContext, useState } from 'react';
 import axios from 'axios';
-import { CART_URL, ORDERS_URL } from '../../App';
+import { useContext, useState } from 'react';
+import { useCart } from '../../hooks/useCart';
+import Info from './Info';
 
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
-const Drawer = ({ onDelete, items = [] }) => {
-    const { cartItems, setCartOpened, setCartItems } = useContext(AppContext);
-
+const Drawer = ({ onDelete, items = [], opened }) => {
+    const { setCartOpened } = useContext(AppContext);
+    const { cartItems, setCartItems, totalPrice } = useCart();
     const [isOrderCompleted, setIsOrderCompleted] = useState();
     const [orderId, setOrderId] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -35,11 +36,15 @@ const Drawer = ({ onDelete, items = [] }) => {
         setIsLoading(false);
     };
 
+    const overlayVisible = `${styles.overlay} ${
+        opened ? styles.overlayVisible : ''
+    }`;
+
     return (
-        <div className={styles.overlay}>
+        <div className={overlayVisible}>
             <div className={styles.drawer}>
                 <h2 className=" d-flex mb-30">
-                    Корзина{' '}
+                    Корзина
                     <img
                         onClick={() => setCartOpened(false)}
                         className={styles.close}
@@ -80,12 +85,12 @@ const Drawer = ({ onDelete, items = [] }) => {
                                 <li>
                                     <span>Итого</span>
                                     <div></div>
-                                    <b>21 498 руб.</b>
+                                    <b>{totalPrice} руб.</b>
                                 </li>
                                 <li>
-                                    <span>Налог 5%</span>
+                                    <span>Сервисный сбор 5%</span>
                                     <div></div>
-                                    <b>1074 руб.</b>
+                                    <b>{(totalPrice * 0.05).toFixed(0)} руб.</b>
                                 </li>
                             </ul>
                             <button

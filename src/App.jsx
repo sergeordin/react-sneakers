@@ -6,35 +6,37 @@ import { Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
 import AppContext from './context';
-
-const API_URL = 'https://my.api.mockaroo.com/sneakers?key=d8035040';
-export const CART_URL = 'https://648dc1b72de8d0ea11e82e09.mockapi.io/cart';
-const FAV_URL = 'https://648dc1b72de8d0ea11e82e09.mockapi.io/favorites';
-export const ORDERS_URL = 'https://64845437ee799e32162686ba.mockapi.io/orders';
+import Orders from './pages/Orders';
+import { API_URL, CART_URL, FAV_URL } from './urls';
 
 function App() {
     const [isLoading, setIsLoading] = useState(true);
-
     const [items, setItems] = useState([]);
     const [searchValue, setSearchValue] = useState('');
-
     const [favorites, setFavorites] = useState([]);
-
     const [cartItems, setCartItems] = useState([]);
     const [cartOpened, setCartOpened] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
         async function fetchData() {
-            const cartResponse = await axios.get(CART_URL);
-            const favoritesResponse = await axios.get(FAV_URL);
-            const itemsResponse = await axios.get(API_URL);
-            setCartItems(cartResponse.data);
-            setFavorites(favoritesResponse.data);
-            setItems(itemsResponse.data);
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 1000);
+            try {
+                const [cartResponse, favoritesResponse, itemsResponse] =
+                    await Promise.all([
+                        axios.get(CART_URL),
+                        axios.get(FAV_URL),
+                        axios.get(API_URL),
+                    ]);
+
+                setCartItems(cartResponse.data);
+                setFavorites(favoritesResponse.data);
+                setItems(itemsResponse.data);
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 500);
+            } catch (error) {
+                alert('Ошибка запроса к серверу ' + error.message);
+            }
         }
         fetchData();
     }, []);
@@ -45,17 +47,38 @@ function App() {
 
     const onAddToCart = async (obj) => {
         try {
-            if (cartItems.find((itemObj) => +itemObj.id === +obj.id)) {
+            const finditem = cartItems.find(
+                (itemObj) => +itemObj.parentId === +obj.id
+            );
+            if (finditem) {
                 setCartItems((prev) =>
-                    prev.filter((item) => +item.id !== +obj.id)
+                    prev.filter((item) => +item.parentId !== +obj.id)
                 );
-                axios.delete(`${CART_URL}/${obj.id}`);
+                axios.delete(`${CART_URL}/${finditem.id}`);
             } else {
-                await axios.post(CART_URL, obj);
                 setCartItems((prev) => [...prev, obj]);
+                const { data } = await axios.post(CART_URL, obj);
+                setCartItems((prev) =>
+                    prev.map((item) => {
+                        if (item.parentId === data.parentId) {
+                            return { ...item, id: data.id };
+                        } else {
+                            return item;
+                        }
+                    })
+                );
             }
         } catch (error) {
             alert('Не удалось добавить в корзину ' + error.message);
+        }
+    };
+
+    const onDeleteItem = (id) => {
+        try {
+            axios.delete(`${CART_URL}/${id}`);
+            setCartItems((prev) => prev.filter((item) => +item.id !== +id));
+        } catch (error) {
+            alert('Не удалось удалить из корзины' + error.message);
         }
     };
 
@@ -75,13 +98,8 @@ function App() {
         }
     };
 
-    const onDeleteItem = (id) => {
-        axios.delete(`${CART_URL}/${id}`);
-        setCartItems((prev) => prev.filter((item) => item.id !== id));
-    };
-
     const isItemAdded = (id) => {
-        return cartItems.some((obj) => +obj.id === +id);
+        return cartItems.some((obj) => +obj.parentId === +id);
     };
 
     return (
@@ -91,17 +109,19 @@ function App() {
                 cartItems,
                 favorites,
                 isItemAdded,
-                onAddFavorite,
                 setCartOpened,
+                onAddToCart,
+                onAddFavorite,
                 setCartItems,
             }}
         >
             <div className="wrapper clear">
-                {cartOpened && (
-                    <Drawer onDelete={onDeleteItem} items={cartItems} />
-                )}
+                <Drawer
+                    items={cartItems}
+                    onDelete={onDeleteItem}
+                    opened={cartOpened}
+                />
                 <Header />
-
                 <Routes>
                     <Route
                         path="/"
@@ -120,6 +140,7 @@ function App() {
                         exact
                     ></Route>
                     <Route path="/favorites" element={<Favorites />}></Route>
+                    <Route path="/orders" element={<Orders />}></Route>
                 </Routes>
             </div>
         </AppContext.Provider>

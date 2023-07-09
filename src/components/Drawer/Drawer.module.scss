@@ -2,89 +2,97 @@
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 1;
-
     width: 100%;
     height: 100%;
-
     background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.1s ease-out, visibility 0.1s ease-out;
+    overflow: hidden;
+}
 
-    .drawer {
-        display: flex;
-        flex-direction: column;
+.overlayVisible {
+    visibility: visible;
+    opacity: 1;
+}
 
-        position: absolute;
-        width: 420px;
-        right: 0;
-        height: 100%;
-        padding: 30px;
+.drawer {
+    display: flex;
+    flex-direction: column;
 
-        background: #fff;
-        box-shadow: -10px 4px 24px rgba(0, 0, 0, 0.1);
-        h2 {
+    position: absolute;
+    width: 420px;
+    right: 0;
+    height: 100%;
+    padding: 30px;
+
+    background: #fff;
+    box-shadow: -10px 4px 24px rgba(0, 0, 0, 0.1);
+
+    h2 {
+        margin: 0;
+        img {
+            margin-left: auto;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+    .items {
+        flex: 1;
+        overflow: auto;
+        margin-bottom: 40px;
+    }
+
+    .cartTotalBlock {
+        ul {
+            margin-bottom: 40px !important;
+            li {
+                display: flex;
+                align-items: flex-end;
+                margin-bottom: 20px;
+
+                div {
+                    flex: 1;
+                    height: 1px;
+                    border-bottom: 1px dashed #dfdfdf;
+                    position: relative;
+                    top: -4px;
+                    margin: 0 7px;
+                }
+            }
+        }
+    }
+
+    .cartItem {
+        margin-bottom: 20px;
+        border: 1px solid #f3f3f3;
+        border-radius: 20px;
+        overflow: hidden;
+        padding: 20px;
+        .cartItemImg {
+            width: 70px;
+            height: 70px;
+            background-size: contain;
+            background-position: 0 -3px;
+            background-repeat: no-repeat;
+            margin-right: 20px;
+        }
+        p {
+            font-size: 16px;
             margin: 0;
-            img {
-                margin-left: auto;
-                &:hover {
-                    cursor: pointer;
-                }
-            }
         }
-        .items {
-            flex: 1;
-            overflow: auto;
-            margin-bottom: 40px;
+        b {
+            font-size: 14px;
         }
+        .close {
+            opacity: 0.5;
+            transition: opacity 0.15s ease-in-out;
 
-        .cartTotalBlock {
-            ul {
-                margin-bottom: 40px !important;
-                li {
-                    display: flex;
-                    align-items: flex-end;
-                    margin-bottom: 20px;
-
-                    div {
-                        flex: 1;
-                        height: 1px;
-                        border-bottom: 1px dashed #dfdfdf;
-                        position: relative;
-                        top: -4px;
-                        margin: 0 7px;
-                    }
-                }
-            }
-        }
-
-        .cartItem {
-            margin-bottom: 20px;
-            border: 1px solid #f3f3f3;
-            border-radius: 20px;
-            overflow: hidden;
-            padding: 20px;
-            .cartItemImg {
-                width: 70px;
-                height: 70px;
-                background-size: contain;
-                background-position: 0 -3px;
-                background-repeat: no-repeat;
-                margin-right: 20px;
-            }
-            p {
-                font-size: 16px;
-                margin: 0;
-            }
-            b {
-                font-size: 14px;
-            }
-            .close {
-                opacity: 0.5;
-                transition: opacity 0.15s ease-in-out;
-
-                &:hover {
-                    opacity: 1;
-                    cursor: pointer;
-                }
+            &:hover {
+                opacity: 1;
+                cursor: pointer;
             }
         }
     }
